@@ -1,0 +1,72 @@
+version: "3"
+services:
+  app:
+    container_name: backend
+    restart: always
+    build: .
+    privileged: true
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn backend.wsgi:application -c gunicorn.conf"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+    depends_on:
+      - db
+
+  db:
+    image: mysql
+    container_name: mysql
+    privileged: true
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password --mysqlx=0
+    volumes:
+      - ./config/mysql/data:/var/lib/mysql
+      - ./config/mysql/logs:/logs
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_HOST=localhost
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=AutoTestTools
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=Zzh@0929
+      - MYSQL_ROOT_PASSWORD=Zzh@0929
+    networks:
+      - backend
+
+  nginx:
+    container_name: frontend
+    restart: always
+    build: config/nginx
+    privileged: true
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/nginx/dist:/usr/share/nginx/html
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - backend
+    depends_on:
+      - app
+
+  redis:
+    container_name: redis
+    image: redis
+    command: redis-server
+    privileged: true
+    volumes:
+      - ./config/redis:/data
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+#expose：表示将端口暴露给其他容器，但不暴露给主机（不同容器默认相互隔离）
+#links 表示将容器互联起来。
+#depends_on：表示依赖关系，因为容器的启动有先后顺序，

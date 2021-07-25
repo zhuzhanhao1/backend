@@ -1,0 +1,26 @@
+# 前段忽略提交
+.DS_Store
+fronted/node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+tests/**/coverage/
+
+# 编辑器忽略提交
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+#后端忽略提交
+__pycache__/
+*.py[cod]
+*$py.class
+mysql/
+*.log
+*.logs
+export/
